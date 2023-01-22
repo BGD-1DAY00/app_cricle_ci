@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@3.0.0
-  railway: railway-deploy/deploy@1.0.0
+  aws-ecr: circleci/aws-ecr@8.2.1
 
 jobs:
   build:
