@@ -1,7 +1,9 @@
 version: 2.1
+
 orbs:
   node: circleci/node@3.0.0
   aws-ecr: circleci/aws-ecr@8.2.1
+  docker: circleci/docker@3.0.0
 
 jobs:
   build:
@@ -14,6 +16,13 @@ jobs:
       - run:
           name: Build
           command: npm run build
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t my-project:latest .
+            echo ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} | aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_REGISTRY}
+            docker tag my-project:latest ${AWS_REGISTRY}/my-project:latest
+            docker push ${AWS_REGISTRY}/my-project:latest
   test:
     executor: node/default
     steps:
@@ -25,9 +34,9 @@ jobs:
           name: Test
           command: npm test
   deploy:
-    executor: railway/default
+    executor: aws-ecr/default
     steps:
-      - run: railway/deploy
+      - run: aws-ecr/deploy
 
 workflows:
   build-test-deploy:
