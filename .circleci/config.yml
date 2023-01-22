@@ -1,0 +1,39 @@
+version: 2.1
+orbs:
+  node: circleci/node@3.0.0
+  railway: railway-deploy/deploy@1.0.0
+
+jobs:
+  build:
+    executor: node/default
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - run:
+          name: Build
+          command: npm run build
+  test:
+    executor: node/default
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - run:
+          name: Test
+          command: npm test
+  deploy:
+    executor: railway/default
+    steps:
+      - run: railway/deploy
+
+workflows:
+  build-test-deploy:
+    jobs:
+      - build
+      - test
+      - deploy:
+          requires:
+            - test
